@@ -87,26 +87,23 @@ namespace OscilloKun
             TriggercomboBox.SelectedIndex = 0;
 
             // フォームをロードするときの処理
-            chart1.Series.Clear();  // ← 最初からSeriesが1つあるのでクリアします
+            chart1.Series.Clear();
             chart1.ChartAreas.Clear();
 
-            // ChartにChartAreaを追加します
+            // ChartにChartAreaを追加
             string chart_area1 = "Area1";
             chart1.ChartAreas.Add(new ChartArea(chart_area1));
-            // ChartにSeriesを追加します
+            // ChartにSeriesを追加
             string legend1 = "CH1";
             chart1.Series.Add(legend1);
-            // グラフの種別を指定
-            chart1.Series[legend1].ChartType = SeriesChartType.Line; // 折れ線グラフを指定してみます
+            chart1.Series[legend1].ChartType = SeriesChartType.Line;
 
-            // データを用意します
+            //適当なデータを表示
             double[] y_values = new double[1000];
             for (int i = 0; i < y_values.Length; i++)
             {
                 y_values[i] = Math.Sin((double)i / 100.0 * 2.0 * Math.PI);
             }
-
-            // データをシリーズにセットします
             for (int i = 0; i < y_values.Length; i++)
             {
                 chart1.Series[legend1].Points.AddY(y_values[i]);
@@ -154,6 +151,7 @@ namespace OscilloKun
 
             command[0] |= (byte)(trig_level * 10);
 
+            //sampling timeは100ns単位の時間
             uint sampling_time = (uint)interval_us[TimeComboBox.SelectedIndex] / 10;  // /100 * 10
             if(sampling_time < 5)
             {
@@ -162,10 +160,19 @@ namespace OscilloKun
             command[1] = (byte)((sampling_time >> 8) & 0xff);
             command[2] = (byte)((sampling_time >> 0) & 0xff);
 
-            serial_buf_counter = 0;
-            serialPort1.Write(command, 0, 3);
+            byte[] packet = cobs_encode(command);
 
-            sampling_us = sampling_time / 10;
+            if(packet.Length == 5)
+            {
+                serial_buf_counter = 0;
+                serialPort1.Write(packet, 0, 5);
+
+                sampling_us = (double)sampling_time / 10;
+            }
+            else
+            {
+                Console.WriteLine("[error]cobs_encode failed");
+            }
         }
 
         private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
