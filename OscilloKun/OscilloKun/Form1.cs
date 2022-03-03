@@ -15,6 +15,9 @@ namespace OscilloKun
 {
     public partial class Form1 : Form
     {
+        //mode
+        bool is_disp_oscillo = false;
+
         //serial
         byte[] serial_buf = new byte[4096];
         int serial_buf_counter = 0;
@@ -62,6 +65,7 @@ namespace OscilloKun
         {
             InitializeComponent();
 
+            //各種コンボボックスの初期化
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
             {
@@ -86,19 +90,18 @@ namespace OscilloKun
 
             TriggercomboBox.SelectedIndex = 0;
 
-            // フォームをロードするときの処理
+            //チャートをクリアして適当な画面を作る
             chart1.Series.Clear();
             chart1.ChartAreas.Clear();
 
-            // ChartにChartAreaを追加
             string chart_area1 = "Area1";
             chart1.ChartAreas.Add(new ChartArea(chart_area1));
-            // ChartにSeriesを追加
+
+            //適当なデータを表示
             string legend1 = "CH1";
             chart1.Series.Add(legend1);
             chart1.Series[legend1].ChartType = SeriesChartType.Line;
 
-            //適当なデータを表示
             double[] y_values = new double[1000];
             for (int i = 0; i < y_values.Length; i++)
             {
@@ -112,14 +115,29 @@ namespace OscilloKun
 
         private void ConnectionButton_Click(object sender, EventArgs e)
         {
-            serialPort1.BaudRate = 115200;
-            serialPort1.Parity = Parity.None;
-            serialPort1.DataBits = 8;
-            serialPort1.StopBits = StopBits.One;
-            serialPort1.Handshake = Handshake.None;
-            serialPort1.PortName = PortComboBox.SelectedItem.ToString();
-            serialPort1.Open();
-            MyTextBox.Text = serialPort1.PortName + "に接続しました。";
+            try
+            {
+                serialPort1.BaudRate = 115200;
+                serialPort1.Parity = Parity.None;
+                serialPort1.DataBits = 8;
+                serialPort1.StopBits = StopBits.One;
+                serialPort1.Handshake = Handshake.None;
+                serialPort1.PortName = PortComboBox.SelectedItem.ToString();
+                serialPort1.Open();
+                MyTextBox.Text = serialPort1.PortName + "に接続しました。";
+            }
+            catch(System.UnauthorizedAccessException)
+            {
+                MyTextBox.Text = "[エラー]" + serialPort1.PortName + "に接続できません。他のソフトで開いていませんか？";
+            }
+            catch(System.IO.IOException)
+            {
+                MyTextBox.Text = "[エラー]" + serialPort1.PortName + "は存在しません。";
+            }
+            catch (System.InvalidOperationException)
+            {
+                MyTextBox.Text = "[エラー]" + "ポートが開いている間にポートを開くことはできません。";
+            }
         }
 
         private void SingleButton_Click(object sender, EventArgs e)
@@ -129,19 +147,19 @@ namespace OscilloKun
             double trig_level = (double)TrigLevelNumericUpDown.Value;
 
             //オシロに送るコマンドはCOBS形式で
-            //1byte:START + Trigger
+            //1byte:7bit目START + 6bit目Trigger RorF + 0-5bit目Trigger Level
             //2byte:サンプリング間隔100ns単位(上位8bit)
             //3byte:サンプリング間隔100ns単位(下位8bit)
             byte[] command = new byte[3] { 0x80, 0x00, 0x00 };
 
             if (trig_mode == "RISE")
             {
-                MyTextBox.Text = "Trigger:RISE";
+                MyTextBox.Text = "Trigger:RISE\r\nWait";
                 command[0] |= 0x00;
             }
             else if(trig_mode == "FALL")
             {
-                MyTextBox.Text = "Trigger:FALL";
+                MyTextBox.Text = "Trigger:FALL\r\nWait";
                 command[0] |= 0x40;
             }
             else
@@ -164,10 +182,22 @@ namespace OscilloKun
 
             if(packet.Length == 5)
             {
-                serial_buf_counter = 0;
-                serialPort1.Write(packet, 0, 5);
+                try
+                {
+                    serialPort1.Write(packet, 0, 5);
+                    serial_buf_counter = 0;
+                    serial_buf_enable = true;
+                    sampling_us = (double)sampling_time / 10;
 
-                sampling_us = (double)sampling_time / 10;
+                    is_disp_oscillo = false;
+                    //チャートをクリアして空のオシロ画面を作る
+                    chart1.Series.Clear();
+                    chart1.ChartAreas.Clear();
+                }
+                catch(System.InvalidOperationException)
+                {
+                    MyTextBox.Text = "[エラー]" + "ポートを開いてください。";
+                }
             }
             else
             {
@@ -191,6 +221,7 @@ namespace OscilloKun
 
                 if (serial_buf_counter >= 4000)
                 {
+                    //予定されているデータが揃ったら表示する
                     serial_buf_enable = false;
                     Invoke(new DrawGraphDelegate(DrawGraph));
                 }
@@ -201,16 +232,27 @@ namespace OscilloKun
        delegate void DrawGraphDelegate();
        void DrawGraph()
         {
+            is_disp_oscillo = true;
+
             MyTextBox.Text = DateTime.Now.ToString() + "\r\nDrawGraph\r\n";
             MyTextBox.Text += "buf[0]:"+serial_buf[0].ToString();
 
             //データを作成
             double interval = interval_us[TimeComboBox.SelectedIndex];
             double max = interval * 10;
+            
             int data_length = (int)(max / sampling_us);
             if(data_length > 1000)
             {
                 data_length = 1000;
+            }
+            
+            bool is_ms_disp = false;
+            if (interval >= 1000)
+            {
+                interval = interval / 1000.0;
+                max = interval * 10;
+                is_ms_disp = true;
             }
 
             double[] time = new double[data_length];
@@ -224,22 +266,37 @@ namespace OscilloKun
                 ch2_vol[i] = (double)serial_buf[i+1000] / 256.0 * 3.3;
                 ch3_vol[i] = (double)serial_buf[i+2000] / 256.0 * 3.3;
                 ch4_vol[i] = (double)serial_buf[i+3000] / 256.0 * 3.3;
-                time[i] = sampling_us * i;
+                if (is_ms_disp)
+                {
+                    time[i] = sampling_us * i / 1000.0;
+                }
+                else
+                {
+                    time[i] = sampling_us * i;
+                }
+                
             }
 
-            // フォームをロードするときの処理
+            //チャートをクリアしてオシロ画面を作る
             chart1.Series.Clear();
             chart1.ChartAreas.Clear();
 
-            // ChartにChartAreaを追加
             string chart_area = "OscilloArea";
             chart1.ChartAreas.Add(new ChartArea(chart_area));
-            chart1.ChartAreas[0].AxisX.Title = "Time(us)";
+            if (is_ms_disp)
+            {
+                chart1.ChartAreas[0].AxisX.Title = "Time(ms)";
+            }
+            else
+            {
+                chart1.ChartAreas[0].AxisX.Title = "Time(us)";
+            }
             chart1.ChartAreas[0].AxisY.Title = "Voltage(V)";
             chart1.ChartAreas[0].AxisX.Minimum = 0;
             chart1.ChartAreas[0].AxisX.Maximum = max;
             chart1.ChartAreas[0].AxisX.Interval = interval;
-            // ChartにSeriesを追加
+
+            //チャートに波形データを入力
             int ch_num = CHComboBox.SelectedIndex + 1;
             string legend1 = "CH1";
             string legend2 = "CH2";
@@ -281,9 +338,14 @@ namespace OscilloKun
                     chart1.Series[legend4].Points.AddXY(time[i], ch4_vol[i]);
                 }
             }
+        }
 
-            serial_buf_counter = 0;
-            serial_buf_enable = true;
+        private void TimeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (is_disp_oscillo)
+            {
+                DrawGraph();
+            }
         }
     }
 }

@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ConnectionButton = new System.Windows.Forms.Button();
             this.MyTextBox = new System.Windows.Forms.TextBox();
             this.PortComboBox = new System.Windows.Forms.ComboBox();
@@ -88,17 +88,17 @@
             this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
+            chartArea3.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.chart1.Legends.Add(legend3);
             this.chart1.Location = new System.Drawing.Point(95, 129);
             this.chart1.Margin = new System.Windows.Forms.Padding(4);
             this.chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chart1.Series.Add(series1);
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            this.chart1.Series.Add(series3);
             this.chart1.Size = new System.Drawing.Size(1086, 419);
             this.chart1.TabIndex = 3;
             this.chart1.Text = "chart1";
@@ -136,13 +136,23 @@
             this.TrigLevelNumericUpDown.Location = new System.Drawing.Point(461, 58);
             this.TrigLevelNumericUpDown.Margin = new System.Windows.Forms.Padding(4);
             this.TrigLevelNumericUpDown.Maximum = new decimal(new int[] {
-            33,
+            32,
+            0,
+            0,
+            65536});
+            this.TrigLevelNumericUpDown.Minimum = new decimal(new int[] {
+            1,
             0,
             0,
             65536});
             this.TrigLevelNumericUpDown.Name = "TrigLevelNumericUpDown";
             this.TrigLevelNumericUpDown.Size = new System.Drawing.Size(160, 22);
             this.TrigLevelNumericUpDown.TabIndex = 7;
+            this.TrigLevelNumericUpDown.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
             // 
             // label2
             // 
@@ -184,6 +194,7 @@
             this.TimeComboBox.Name = "TimeComboBox";
             this.TimeComboBox.Size = new System.Drawing.Size(160, 23);
             this.TimeComboBox.TabIndex = 10;
+            this.TimeComboBox.SelectedIndexChanged += new System.EventHandler(this.TimeComboBox_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -224,7 +235,7 @@
             this.Controls.Add(this.ConnectionButton);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "woodOscillo";
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TrigLevelNumericUpDown)).EndInit();
             this.ResumeLayout(false);
