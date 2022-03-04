@@ -25,8 +25,8 @@ namespace OscilloKun
         double sampling_us = 0.5;
 
         //time
-        double[] interval_us = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000 };   //us
-        String[] interval_str = { "10us", "20us", "50us", "100us", "200us", "500us", "1ms", "2ms", "5ms" };
+        double[] interval_us = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000 };   //us
+        String[] interval_str = { "10us", "20us", "50us", "100us", "200us", "500us", "1ms", "2ms", "5ms", "10ms", "20ms", "50ms" };
         int time_position_us = 0;
 
         //CH
@@ -389,7 +389,7 @@ namespace OscilloKun
             //更新する
             interval_count += value;
             time_position_us = (int)(interval_count * interval);
-            if(time_position_us < 1000) {
+            if(Math.Abs(time_position_us) < 1000) {
                 TimePosTextBox.Text = time_position_us + "us";
             }
             else
