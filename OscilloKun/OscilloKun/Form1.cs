@@ -27,9 +27,11 @@ namespace OscilloKun
         //time
         double[] interval_us = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000 };   //us
         String[] interval_str = { "10us", "20us", "50us", "100us", "200us", "500us", "1ms", "2ms", "5ms" };
+        int time_position_us = 0;
 
         //CH
         String[] CH_str = { "CH1", "CH1+CH2", "CH1+CH2+CH3", "CH1+CH2+CH3+CH4" };
+
 
         public byte[] cobs_encode(byte[] data)
         {
@@ -239,19 +241,17 @@ namespace OscilloKun
 
             //データを作成
             double interval = interval_us[TimeComboBox.SelectedIndex];
-            double max = interval * 10;
-            
-            int data_length = (int)(max / sampling_us);
-            if(data_length > 1000)
-            {
-                data_length = 1000;
-            }
+            double min = time_position_us;
+            double max = interval * 10 + time_position_us;
+
+            int data_length = 1000;
             
             bool is_ms_disp = false;
             if (interval >= 1000)
             {
                 interval = interval / 1000.0;
-                max = interval * 10;
+                min = min / 1000.0;
+                max = max / 1000.0;
                 is_ms_disp = true;
             }
 
@@ -274,7 +274,6 @@ namespace OscilloKun
                 {
                     time[i] = sampling_us * i;
                 }
-                
             }
 
             //チャートをクリアしてオシロ画面を作る
@@ -292,7 +291,7 @@ namespace OscilloKun
                 chart1.ChartAreas[0].AxisX.Title = "Time(us)";
             }
             chart1.ChartAreas[0].AxisY.Title = "Voltage(V)";
-            chart1.ChartAreas[0].AxisX.Minimum = 0;
+            chart1.ChartAreas[0].AxisX.Minimum = min;
             chart1.ChartAreas[0].AxisX.Maximum = max;
             chart1.ChartAreas[0].AxisX.Interval = interval;
 
@@ -342,10 +341,62 @@ namespace OscilloKun
 
         private void TimeComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            TimePosMoveInterval(false, 0);
             if (is_disp_oscillo)
             {
                 DrawGraph();
             }
+        }
+
+        private void TimePosZeroButton_Click(object sender, EventArgs e)
+        {
+            TimePosMoveInterval(true, 0);
+            if (is_disp_oscillo)
+            {
+                DrawGraph();
+            }
+        }
+
+        private void TimePosLeftButton_Click(object sender, EventArgs e)
+        {
+            TimePosMoveInterval(false, -1);
+            if (is_disp_oscillo)
+            {
+                DrawGraph();
+            }
+        }
+
+        private void TimePosRightButton_Click(object sender, EventArgs e)
+        {
+            TimePosMoveInterval(false, 1);
+            if (is_disp_oscillo)
+            {
+                DrawGraph();
+            }
+        }
+
+        //interval基準でTimePosを更新する関数
+        private void TimePosMoveInterval(bool absolute, int value)
+        {
+            //現在のinterval上での位置を取得
+            double interval = interval_us[TimeComboBox.SelectedIndex];
+            int interval_count = (int)Math.Round(time_position_us / interval);
+            if (absolute)
+            {
+                interval_count = 0;
+            }
+
+            //更新する
+            interval_count += value;
+            time_position_us = (int)(interval_count * interval);
+            if(time_position_us < 1000) {
+                TimePosTextBox.Text = time_position_us + "us";
+            }
+            else
+            {
+                TimePosTextBox.Text = time_position_us / 1000.0 + "ms";
+            }
+            
         }
     }
 }

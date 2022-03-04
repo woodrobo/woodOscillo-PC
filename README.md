@@ -6,7 +6,7 @@
 <img src="./add_info/woodOscillo.png" alt="オシロ画面" width="400"/>  
 
 # 使い方 
-OscilloKun/bin/Debug/OscilloKun.exeを実行するか自分でコンパイルする。  
+OscilloKun.exeを実行するか自分でコンパイルする。  
 
 ソフトウェア  
 - ポートを選択し接続ボタンを押す
