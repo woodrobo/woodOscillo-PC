@@ -195,6 +195,15 @@ namespace OscilloKun
                     //チャートをクリアして空のオシロ画面を作る
                     chart1.Series.Clear();
                     chart1.ChartAreas.Clear();
+                    if(sampling_us <= 1.0)
+                    {
+                        SamplingRateLabel.Text = 1 / sampling_us + "Msps";
+                    }
+                    else
+                    {
+                        SamplingRateLabel.Text = 1 / sampling_us * 1000 + "ksps";
+                    }
+                    
                 }
                 catch(System.InvalidOperationException)
                 {
