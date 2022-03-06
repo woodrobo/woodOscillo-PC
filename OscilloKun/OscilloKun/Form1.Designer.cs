@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ConnectionButton = new System.Windows.Forms.Button();
             this.MyTextBox = new System.Windows.Forms.TextBox();
             this.PortComboBox = new System.Windows.Forms.ComboBox();
@@ -52,6 +52,8 @@
             this.TimePosRightButton = new System.Windows.Forms.Button();
             this.TimePosZeroButton = new System.Windows.Forms.Button();
             this.SamplingRateLabel = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.FirmwareComboBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TrigLevelNumericUpDown)).BeginInit();
             this.SuspendLayout();
@@ -94,17 +96,17 @@
             this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea4.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.chart1.Legends.Add(legend4);
+            chartArea2.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chart1.Legends.Add(legend2);
             this.chart1.Location = new System.Drawing.Point(95, 129);
             this.chart1.Margin = new System.Windows.Forms.Padding(4);
             this.chart1.Name = "chart1";
-            series4.ChartArea = "ChartArea1";
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.chart1.Series.Add(series4);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.chart1.Series.Add(series2);
             this.chart1.Size = new System.Drawing.Size(1085, 419);
             this.chart1.TabIndex = 3;
             this.chart1.Text = "chart1";
@@ -283,11 +285,32 @@
             this.SamplingRateLabel.Text = "---ksps";
             this.SamplingRateLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(335, 102);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(64, 15);
+            this.label6.TabIndex = 20;
+            this.label6.Text = "Firmware";
+            // 
+            // FirmwareComboBox
+            // 
+            this.FirmwareComboBox.FormattingEnabled = true;
+            this.FirmwareComboBox.Location = new System.Drawing.Point(407, 98);
+            this.FirmwareComboBox.Margin = new System.Windows.Forms.Padding(4);
+            this.FirmwareComboBox.Name = "FirmwareComboBox";
+            this.FirmwareComboBox.Size = new System.Drawing.Size(160, 23);
+            this.FirmwareComboBox.TabIndex = 21;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1292, 562);
+            this.Controls.Add(this.FirmwareComboBox);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.SamplingRateLabel);
             this.Controls.Add(this.TimePosZeroButton);
             this.Controls.Add(this.TimePosRightButton);
@@ -309,7 +332,7 @@
             this.Controls.Add(this.ConnectionButton);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "woodOscillo";
+            this.Text = "woodOscillo-pic32mxstartbook";
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TrigLevelNumericUpDown)).EndInit();
             this.ResumeLayout(false);
@@ -339,6 +362,8 @@
         private System.Windows.Forms.Button TimePosRightButton;
         private System.Windows.Forms.Button TimePosZeroButton;
         private System.Windows.Forms.Label SamplingRateLabel;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox FirmwareComboBox;
     }
 }
 

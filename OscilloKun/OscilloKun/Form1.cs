@@ -19,10 +19,10 @@ namespace OscilloKun
         bool is_disp_oscillo = false;
 
         //serial
-        byte[] serial_buf = new byte[4096];
+        byte[] serial_buf = new byte[1024];
         int serial_buf_counter = 0;
         bool serial_buf_enable = true;
-        double sampling_us = 0.5;
+        double sampling_us = 1.0;
 
         //time
         double[] interval_us = { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000 };   //us
@@ -30,7 +30,10 @@ namespace OscilloKun
         int time_position_us = 0;
 
         //CH
-        String[] CH_str = { "CH1", "CH1+CH2", "CH1+CH2+CH3", "CH1+CH2+CH3+CH4" };
+        String[] CH_str = { "CH1" };
+
+        //Firmware
+        String[] firmware_str = { "NORMAL", "OVER CLOCK" };
 
 
         public byte[] cobs_encode(byte[] data)
@@ -89,6 +92,12 @@ namespace OscilloKun
                 CHComboBox.Items.Add(str);
             }
             CHComboBox.SelectedIndex = 0;
+
+            foreach (string str in firmware_str)
+            {
+                FirmwareComboBox.Items.Add(str);
+            }
+            FirmwareComboBox.SelectedIndex = 0;
 
             TriggercomboBox.SelectedIndex = 0;
 
@@ -173,10 +182,21 @@ namespace OscilloKun
 
             //sampling timeは100ns単位の時間
             uint sampling_time = (uint)interval_us[TimeComboBox.SelectedIndex] / 10;  // /100 * 10
-            if(sampling_time < 5)
+            if(FirmwareComboBox.SelectedItem.ToString() == "NORMAL")
             {
-                sampling_time = 5;
+                if (sampling_time < 20)
+                {
+                    sampling_time = 20;
+                }
             }
+            else
+            {
+                if (sampling_time < 10)
+                {
+                    sampling_time = 10;
+                }
+            }
+
             command[1] = (byte)((sampling_time >> 8) & 0xff);
             command[2] = (byte)((sampling_time >> 0) & 0xff);
 
@@ -230,7 +250,7 @@ namespace OscilloKun
 
                 Console.WriteLine("counter:{0}", serial_buf_counter);
 
-                if (serial_buf_counter >= 4000)
+                if (serial_buf_counter >= 1000)
                 {
                     //予定されているデータが揃ったら表示する
                     serial_buf_enable = false;
@@ -266,15 +286,10 @@ namespace OscilloKun
 
             double[] time = new double[data_length];
             double[] ch1_vol = new double[data_length];
-            double[] ch2_vol = new double[data_length];
-            double[] ch3_vol = new double[data_length];
-            double[] ch4_vol = new double[data_length];
+
             for (int i = 0; i < data_length; i++)
             {
                 ch1_vol[i] = (double)serial_buf[i] / 256.0 * 3.3;
-                ch2_vol[i] = (double)serial_buf[i+1000] / 256.0 * 3.3;
-                ch3_vol[i] = (double)serial_buf[i+2000] / 256.0 * 3.3;
-                ch4_vol[i] = (double)serial_buf[i+3000] / 256.0 * 3.3;
                 if (is_ms_disp)
                 {
                     time[i] = sampling_us * i / 1000.0;
@@ -307,9 +322,6 @@ namespace OscilloKun
             //チャートに波形データを入力
             int ch_num = CHComboBox.SelectedIndex + 1;
             string legend1 = "CH1";
-            string legend2 = "CH2";
-            string legend3 = "CH3";
-            string legend4 = "CH4";
             if (ch_num >= 1)
             {
                 chart1.Series.Add(legend1);
@@ -317,33 +329,6 @@ namespace OscilloKun
                 for (int i = 0; i < data_length; i++)
                 {
                     chart1.Series[legend1].Points.AddXY(time[i], ch1_vol[i]);
-                }
-            }
-            if (ch_num >= 2)
-            {
-                chart1.Series.Add(legend2);
-                chart1.Series[legend2].ChartType = SeriesChartType.Line;
-                for (int i = 0; i < data_length; i++)
-                {
-                    chart1.Series[legend2].Points.AddXY(time[i], ch2_vol[i]);
-                }
-            }
-            if (ch_num >= 3)
-            {
-                chart1.Series.Add(legend3);
-                chart1.Series[legend3].ChartType = SeriesChartType.Line;
-                for (int i = 0; i < data_length; i++)
-                {
-                    chart1.Series[legend3].Points.AddXY(time[i], ch3_vol[i]);
-                }
-            }
-            if (ch_num >= 4)
-            {
-                chart1.Series.Add(legend4);
-                chart1.Series[legend4].ChartType = SeriesChartType.Line;
-                for (int i = 0; i < data_length; i++)
-                {
-                    chart1.Series[legend4].Points.AddXY(time[i], ch4_vol[i]);
                 }
             }
         }
