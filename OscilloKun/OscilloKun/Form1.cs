@@ -19,7 +19,8 @@ namespace OscilloKun
         bool is_disp_oscillo = false;
 
         //serial
-        byte[] serial_buf = new byte[1024];
+        const int measurement_num = 4000;
+        byte[] serial_buf = new byte[1 * measurement_num * 2];  //1ch * 測定点数 * 安全率
         int serial_buf_counter = 0;
         bool serial_buf_enable = true;
         double sampling_us = 1.0;
@@ -250,7 +251,7 @@ namespace OscilloKun
 
                 Console.WriteLine("counter:{0}", serial_buf_counter);
 
-                if (serial_buf_counter >= 1000)
+                if (serial_buf_counter >= 1 * measurement_num)
                 {
                     //予定されているデータが揃ったら表示する
                     serial_buf_enable = false;
@@ -273,7 +274,7 @@ namespace OscilloKun
             double min = time_position_us;
             double max = interval * 10 + time_position_us;
 
-            int data_length = 1000;
+            int data_length = measurement_num;
             
             bool is_ms_disp = false;
             if (interval >= 1000)
