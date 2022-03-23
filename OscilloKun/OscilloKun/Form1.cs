@@ -19,7 +19,8 @@ namespace OscilloKun
         bool is_disp_oscillo = false;
 
         //serial
-        byte[] serial_buf = new byte[4096];
+        const int measurement_num = 4000;
+        byte[] serial_buf = new byte[4 * measurement_num * 2];
         int serial_buf_counter = 0;
         bool serial_buf_enable = true;
         double sampling_us = 0.5;
@@ -230,7 +231,7 @@ namespace OscilloKun
 
                 Console.WriteLine("counter:{0}", serial_buf_counter);
 
-                if (serial_buf_counter >= 4000)
+                if (serial_buf_counter >= 4 * measurement_num)
                 {
                     //予定されているデータが揃ったら表示する
                     serial_buf_enable = false;
@@ -253,7 +254,7 @@ namespace OscilloKun
             double min = time_position_us;
             double max = interval * 10 + time_position_us;
 
-            int data_length = 1000;
+            int data_length = measurement_num;
             
             bool is_ms_disp = false;
             if (interval >= 1000)
@@ -272,9 +273,9 @@ namespace OscilloKun
             for (int i = 0; i < data_length; i++)
             {
                 ch1_vol[i] = (double)serial_buf[i] / 256.0 * 3.3;
-                ch2_vol[i] = (double)serial_buf[i+1000] / 256.0 * 3.3;
-                ch3_vol[i] = (double)serial_buf[i+2000] / 256.0 * 3.3;
-                ch4_vol[i] = (double)serial_buf[i+3000] / 256.0 * 3.3;
+                ch2_vol[i] = (double)serial_buf[i + 1 * measurement_num] / 256.0 * 3.3;
+                ch3_vol[i] = (double)serial_buf[i + 2 * measurement_num] / 256.0 * 3.3;
+                ch4_vol[i] = (double)serial_buf[i + 3 * measurement_num] / 256.0 * 3.3;
                 if (is_ms_disp)
                 {
                     time[i] = sampling_us * i / 1000.0;
